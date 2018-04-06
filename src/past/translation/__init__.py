@@ -38,9 +38,22 @@ import marshal
 import os
 import sys
 import copy
-from lib2to3.pgen2.parse import ParseError
-from lib2to3.refactor import RefactoringTool
-
+try:
+    from lib2to3.pgen2.parse import ParseError
+except ImportError:
+    class ParseError(SyntaxError):
+        pass
+try:    
+    from lib2to3.refactor import RefactoringTool
+except ImportError:
+    class RefactoringTool:
+        def __init__(self, *args, **kwargs):
+            self._args = [repr(a) for a in args]
+            self._args += ["{}={!r}".format(k, v) for k, v in kwargs.items()]
+        def __repr__(self):
+            return "{}({})".format(self.__class__.__name__, ", ".join(self._args))
+        def refactor_string(self, *args, **kwargs):
+            raise NotImplementedError("dummy RefactoringTool")
 from libfuturize import fixes
 
 
